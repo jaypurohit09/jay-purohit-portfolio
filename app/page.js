@@ -1,175 +1,313 @@
-function FlowDiagram({ id, sources, hub, output }) {
-  const gap = 52;
-  const top = 36;
-  const height = top * 2 + gap * (sources.length - 1);
-  const cy = height / 2;
-  const srcX = 170;
-  const hubX = 400;
-  const hubR = 44;
-  const outX = 560;
+// Booking link: set this to your Cal.com event URL (e.g. "https://cal.com/jaypurohit/intro").
+// While it is empty, the primary button falls back to email.
+const BOOKING_URL = "";
+
+const EMAIL = "jaypurohit9294@gmail.com";
+const MAILTO = `mailto:${EMAIL}?subject=Hello%20Jay`;
+const LINKEDIN = "https://www.linkedin.com/in/jaypurohit-growth/";
+const PRIMARY = BOOKING_URL
+  ? { label: "Book a 20-min call", href: BOOKING_URL, external: true }
+  : { label: "Email me", href: MAILTO, external: false };
+
+/* ---------- Signup chart (Supabase auth export, external signups, by month) ---------- */
+const signups = [
+  ["Jul", 7], ["Aug", 15], ["Sep", 46], ["Oct", 40], ["Nov", 93], ["Dec", 102],
+  ["Jan", 87], ["Feb", 109], ["Mar", 59], ["Apr", 126], ["May", 128], ["Jun", 110],
+  ["Jul", 91], ["Aug", 98], ["Sep", 108],
+];
+
+function SignupChart({ compact = false }) {
+  const W = compact ? 420 : 860;
+  const H = compact ? 300 : 340;
+  const L = compact ? 34 : 52;
+  const R = compact ? 40 : 64;
+  const T = 48;
+  const B = 44;
+  const pw = W - L - R;
+  const ph = H - T - B;
+  const max = 140;
+  const x = (i) => L + (i * pw) / (signups.length - 1);
+  const y = (v) => T + ph * (1 - v / max);
+  const pts = signups.map(([, v], i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+  const line = `M${pts.join(" L")}`;
+  const area = `${line} L${x(signups.length - 1).toFixed(1)},${y(0)} L${x(0)},${y(0)} Z`;
+  const ticks = compact
+    ? [[0, "Jul 2025"], [6, "Jan 2026"], [14, "Sep 2026"]]
+    : [[0, "Jul 2025"], [3, "Oct"], [6, "Jan 2026"], [9, "Apr"], [12, "Jul"], [14, "Sep 2026"]];
+  const fillId = compact ? "signupFillS" : "signupFillL";
+  const fs = compact ? 16 : 13;
+  const fv = compact ? 18 : 15;
+  const emphasis = new Set([0, 10, 14]);
 
   return (
     <svg
-      viewBox={`0 0 760 ${height}`}
+      viewBox={`0 0 ${W} ${H}`}
+      className={compact ? "chart-svg chart-compact" : "chart-svg chart-full"}
       role="img"
-      aria-label={`Diagram: ${sources.map((s) => s).join(", ")} flow into ${hub.label}, which outputs ${output.label}`}
+      aria-label="Area chart of nRev monthly signups from July 2025 to September 2026: 7 in July 2025, rising past 90 by November, a peak of 128 in May 2026 and 108 in September 2026."
+    >
+      <defs>
+        <linearGradient id={fillId} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#6366f1" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+
+      {[0, 50, 100].map((v) => (
+        <g key={v}>
+          <line x1={L} x2={W - R} y1={y(v)} y2={y(v)} stroke="#242d48" strokeWidth="1" />
+          <text x={L - 12} y={y(v) + 5} textAnchor="end" fontSize={fs} fontWeight="600">
+            {v}
+          </text>
+        </g>
+      ))}
+
+      <path d={area} fill={`url(#${fillId})`} />
+      <path d={line} fill="none" stroke="#a78bfa" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
+
+      {/* Annotations */}
+      <line x1={x(4)} x2={x(4)} y1={T - 18} y2={y(93) - 10} stroke="#c4b5fd" strokeWidth="1" strokeDasharray="3 4" />
+      <line x1={x(5)} x2={x(5)} y1={T - 18} y2={y(102) - 10} stroke="#c4b5fd" strokeWidth="1" strokeDasharray="3 4" />
+      <text x={(x(4) + x(5)) / 2} y={T - 24} textAnchor="middle" fontSize={fs} fontWeight="700">
+        {compact ? "Workshops" : "In-person workshops"}
+      </text>
+      <line x1={x(9)} x2={x(9)} y1={T - 18} y2={y(126) - 10} stroke="#c4b5fd" strokeWidth="1" strokeDasharray="3 4" />
+      <text x={x(9)} y={T - 24} textAnchor="middle" fontSize={fs} fontWeight="700">
+        {compact ? "Product Hunt" : "Product Hunt launch"}
+      </text>
+
+      {signups.map(([, v], i) => (
+        <circle
+          key={i}
+          cx={x(i)}
+          cy={y(v)}
+          r={emphasis.has(i) ? 6 : 4}
+          fill={emphasis.has(i) ? "#a78bfa" : "#6366f1"}
+          stroke="#0a0e17"
+          strokeWidth="3"
+        />
+      ))}
+
+      <text x={x(0) + 10} y={y(7) - 12} fontSize={fv} fontWeight="800">7</text>
+      <text x={x(10) + 10} y={y(128) + 5} fontSize={fv} fontWeight="800">128</text>
+      <text x={x(14) + 12} y={y(108) + 5} fontSize={fv} fontWeight="800">108</text>
+
+      {ticks.map(([i, label]) => (
+        <text
+          key={label}
+          x={x(i)}
+          y={H - 14}
+          textAnchor={i === 0 ? "start" : i === signups.length - 1 ? "end" : "middle"}
+          fontSize={fs}
+          fontWeight="600"
+        >
+          {label}
+        </text>
+      ))}
+    </svg>
+  );
+}
+
+/* ---------- System flow diagram ---------- */
+function FlowDiagram({ id, sources, hub, output }) {
+  const gap = 56;
+  const top = 40;
+  const height = top * 2 + gap * (sources.length - 1);
+  const cy = height / 2;
+  const srcX = 210;
+  const hubX = 430;
+  const r = 52;
+  const outX = 590;
+
+  return (
+    <svg
+      viewBox={`0 0 800 ${height}`}
       className="flow-svg"
+      role="img"
+      aria-label={`${sources.join(", ")} feed ${hub.label} (${hub.sub}), which produces ${output.label}`}
     >
       {sources.map((label, i) => {
-        const y = top + i * gap;
+        const sy = top + i * gap;
         return (
           <g key={`${id}-${label}`}>
-            <line x1={srcX} y1={y} x2={hubX - hubR} y2={cy} stroke="var(--border)" strokeWidth="1.4" />
+            <line x1={srcX} y1={sy} x2={hubX - r} y2={cy} stroke="#242d48" strokeWidth="1.5" />
             <line
               x1={srcX}
-              y1={y}
-              x2={hubX - hubR}
+              y1={sy}
+              x2={hubX - r}
               y2={cy}
-              stroke="var(--accent-2)"
-              strokeWidth="1.4"
-              strokeDasharray="3 7"
-              opacity="0.85"
+              stroke="#a78bfa"
+              strokeWidth="1.5"
+              strokeDasharray="3 8"
             >
               <animate
                 attributeName="stroke-dashoffset"
                 from="0"
-                to="-40"
-                dur="3.4s"
+                to="-44"
+                dur="3.2s"
                 begin={`${i * 0.3}s`}
                 repeatCount="indefinite"
               />
             </line>
-            <circle cx={srcX} cy={y} r="4.5" fill="var(--accent-2)" />
-            <text x={srcX - 16} y={y + 4} textAnchor="end" className="flow-label">
+            <circle cx={srcX} cy={sy} r="5" fill="#a78bfa" />
+            <text x={srcX - 16} y={sy + 5} textAnchor="end" fontSize="15" fontWeight="600">
               {label}
             </text>
           </g>
         );
       })}
 
-      <circle cx={hubX} cy={cy} r={hubR} fill="var(--surface-2)" stroke="var(--accent)" strokeWidth="1.6" />
-      <text x={hubX} y={cy - 2} textAnchor="middle" className="flow-hub">
+      <circle cx={hubX} cy={cy} r={r} fill="#161e33" stroke="#6366f1" strokeWidth="2" />
+      <text x={hubX} y={cy + 1} textAnchor="middle" fontSize="18" fontWeight="800">
         {hub.label}
       </text>
-      <text x={hubX} y={cy + 15} textAnchor="middle" className="flow-hub-sub">
+      <text x={hubX} y={cy + 20} textAnchor="middle" fontSize="12" fontWeight="700" style={{ fill: "#c4b5fd" }}>
         {hub.sub}
       </text>
 
-      <line x1={hubX + hubR} y1={cy} x2={outX - 6} y2={cy} stroke="var(--border)" strokeWidth="1.6" />
-      <line
-        x1={hubX + hubR}
-        y1={cy}
-        x2={outX - 6}
-        y2={cy}
-        stroke="var(--accent)"
-        strokeWidth="1.6"
-        strokeDasharray="4 8"
-      >
-        <animate attributeName="stroke-dashoffset" from="0" to="-48" dur="2.6s" repeatCount="indefinite" />
+      <line x1={hubX + r} y1={cy} x2={outX - 7} y2={cy} stroke="#242d48" strokeWidth="2" />
+      <line x1={hubX + r} y1={cy} x2={outX - 7} y2={cy} stroke="#6366f1" strokeWidth="2" strokeDasharray="5 8">
+        <animate attributeName="stroke-dashoffset" from="0" to="-52" dur="2.4s" repeatCount="indefinite" />
       </line>
-      <circle cx={outX} cy={cy} r="5" fill="var(--accent)" />
-      <text x={outX + 14} y={cy - 6} textAnchor="start" className="flow-label flow-label-out">
+      <circle cx={outX} cy={cy} r="7" fill="#6366f1" />
+      <text x={outX + 18} y={cy - 4} fontSize="16" fontWeight="800">
         {output.label}
       </text>
-      <text x={outX + 14} y={cy + 13} textAnchor="start" className="flow-sub-out">
+      <text x={outX + 18} y={cy + 17} fontSize="13" fontWeight="600">
         {output.sub}
       </text>
     </svg>
   );
 }
 
-const proofStats = [
+function FlowStack({ sources, hub, output }) {
+  return (
+    <div className="flow-stack" aria-hidden="true">
+      <ul className="tags">
+        {sources.map((x) => (
+          <li className="tag" key={x}>{x}</li>
+        ))}
+      </ul>
+      <span className="flow-arrow">↓</span>
+      <p className="flow-hub-pill">
+        {hub.label} <span>{hub.sub}</span>
+      </p>
+      <span className="flow-arrow">↓</span>
+      <p className="flow-out">
+        {output.label} <span>{output.sub}</span>
+      </p>
+    </div>
+  );
+}
+
+/* ---------- Content ---------- */
+const proof = [
   { num: "324", unit: "", label: "booked meetings fed at nRev" },
   { num: "30", unit: "", label: "paying customers, no paid ads" },
-  { num: "33.5", unit: "K", label: "AI-answer citations earned" },
-  { num: "26", unit: "x", label: "organic search sessions" },
+  { num: "33.5", unit: "K", label: "AI-answer citations, 93% non-branded" },
+  { num: "26", unit: "x", label: "organic search sessions in 13 months" },
 ];
 
-const systems = [
+const cases = [
   {
     id: "seo",
-    tag: "SEO · AEO · MCP",
-    title: "An SEO and AEO engine that runs on Claude",
-    outcome:
-      "Organic search grew 26x, and nRev earned 33,525 AI-answer citations, 93% of them on non-branded category queries.",
-    body: [
-      "I built nrev-seo-mcp, a Python MCP server that gives Claude direct access to Search Console and GA4. Research, briefs and page fixes happen in one session, with no CSV exports in between.",
-      "On top of it runs the Weekly SEO Brain: every Monday it reads Search Console, ranks the one move worth making that week, and stages the fix for approval. Nothing ships without a human yes. The Elite dashboard is where those findings get reviewed and approved, built on live nrev.ai data.",
-    ],
+    kicker: "SEO and AEO",
+    title: "A search engine that works the Monday shift",
+    problem: (
+      <>
+        A seed-stage site getting <b>56 organic visits a month</b>, and no ad budget to buy the rest.
+      </>
+    ),
     flow: {
       sources: ["Search Console", "GA4", "Firecrawl", "Webflow CMS"],
       hub: { label: "Claude", sub: "via MCP" },
       output: { label: "Move of the week", sub: "approve, then ship" },
     },
-    stats: [
-      { b: "26x", s: "organic search sessions, 56 to 1,452 a month" },
-      { b: "33,525", s: "AI citations across Copilot, Bing and AI Overviews" },
-      { b: "1,000+", s: "CMS pages: blog, glossary, jobs, tools, comparisons" },
+    built: [
+      "A Python MCP server that plugs Search Console and GA4 straight into Claude, so research, briefs and page fixes happen in one session.",
+      "On top of it, the Weekly SEO Brain. Every Monday it reads the data, ranks the one move worth making and stages the fix. Nothing ships until I approve it in the Elite dashboard.",
     ],
-    tags: ["Python MCP server", "Claude", "Next.js", "Webflow", "Bing Webmaster"],
+    results: [
+      { b: "26x", s: "organic search sessions, 56 to 1,452 a month" },
+      { b: "33.5K", s: "AI-answer citations across Copilot, Bing and AI Overviews" },
+      { b: "1,000+", s: "pages shipped on Webflow: blog, glossary, jobs, tools" },
+    ],
+    lesson:
+      "Ranking isn't the same as being cited. AI builds its answer from whoever is easiest to quote, so I wrote pages to be quoted.",
+    tags: ["Python MCP", "Claude", "Search Console", "Webflow", "Bing Webmaster"],
     link: { label: "Open the Elite dashboard", url: "https://nrev-elite-dashboard.vercel.app" },
   },
   {
     id: "events",
-    tag: "Event-led demand",
-    title: "An event engine that turned rooms into customers",
-    outcome:
-      "25 GTM events in 10 months. PriceLabs and Spendflo came through the room and became paying customers.",
-    body: [
-      "I ran the program and the whole machine behind it: account lists built from buying signals and enriched in Apollo, personalized invites through Instantly and WhatsApp, an approval gate on Luma to keep every room ICP-only, and registrants routed into HubSpot for sales.",
-      "The data changed how I judged events. The biggest webinar drew 97 registrations and 2 signups that day. Hands-on, in-person workshops ran 2 to 4x a normal week's signups. Registrations are applause; signups are the score.",
-    ],
+    kicker: "Event-led demand",
+    title: "An event machine that turned rooms into customers",
+    problem: (
+      <>
+        A new category that buyers had to <b>see working</b> before they would sign up.
+      </>
+    ),
     flow: {
       sources: ["Buying signals", "Apollo enrichment", "Instantly invites", "WhatsApp nudges"],
       hub: { label: "Luma", sub: "approval gate" },
-      output: { label: "HubSpot, then sales", sub: "workshop weeks: 2 to 4x signups" },
+      output: { label: "HubSpot, then sales", sub: "ICP-only rooms" },
     },
-    stats: [
-      { b: "25", s: "GTM events run or represented, Sep 2025 to Jun 2026" },
-      { b: "564", s: "approved registrations on nRev's event calendar" },
-      { b: "3.7%", s: "reply rate on the signal-based invite, about 4x average" },
+    built: [
+      "Account lists built from buying signals and enriched in Apollo, personalized invites through Instantly and WhatsApp, an approval gate on Luma so every room stayed ICP-only, and registrants routed to sales in HubSpot.",
+      "The founders ran the rooms. I built the machine that filled them.",
     ],
+    results: [
+      { b: "25", s: "GTM events run or represented in 10 months" },
+      { b: "564", s: "approved registrations on nRev's event calendar" },
+      { b: "3.7%", s: "replies on signal-based invites, about 4x our average" },
+    ],
+    lesson:
+      "Our biggest webinar drew 97 registrations and 2 signups that day. Hands-on workshops ran 2 to 4x a normal week. Seats are applause. Signups are the score.",
     tags: ["Luma", "Instantly", "Apollo", "HubSpot", "WhatsApp"],
   },
   {
     id: "outbound",
-    tag: "Signal-based outbound",
-    title: "An outbound lab that finds the winning signal before scaling",
-    outcome:
-      "Competitor-engagement signals replied at 2.1%, about 5x the hiring-signal and hands-on angles.",
-    body: [
-      "I ran a six-angle cold outbound test across about 3,000 leads. Each angle got a small pilot first. Winners scaled, losers were cut early to protect sender health, so bounce held at 2.3% across 49 campaigns.",
-      "On LinkedIn, I handled every reply across 12 sender profiles, turning 150 to 200 replies a month into 20 to 25 booked meetings.",
-    ],
+    kicker: "Signal-based outbound",
+    title: "An outbound lab that finds the signal before it scales",
+    problem: (
+      <>
+        Cold email to people who had <b>never heard of the category</b>.
+      </>
+    ),
     flow: {
-      sources: ["Competitor signal", "Hiring signal", "Hands-on users", "Staffing / Tech"],
-      hub: { label: "Pilot", sub: "small batch first" },
+      sources: ["Competitor signal", "Hiring signal", "Hands-on users", "Staffing, Tech"],
+      hub: { label: "Pilot", sub: "small batch" },
       output: { label: "Scale what replies", sub: "cut the rest early" },
     },
-    stats: [
-      { b: "2.1%", s: "replies on competitor signals, about 5x other angles" },
-      { b: "24,763", s: "emails across 49 campaigns, 2.3% bounce" },
+    built: [
+      "Six message angles across about 3,000 leads, each piloted on a small batch first. Winners scaled. Losers were cut early to protect sender health.",
+      "On LinkedIn, I worked every reply across 12 sender profiles and turned them into meetings.",
+    ],
+    results: [
+      { b: "2.1%", s: "replies on competitor signals, about 5x the other angles" },
+      { b: "2.3%", s: "bounce across 49 campaigns and 24,763 emails" },
       { b: "20 to 25", s: "booked meetings a month from LinkedIn replies" },
     ],
+    lesson:
+      "Timing beat targeting. People engaging with a competitor that week replied 5x more than people picked by hiring signals.",
     tags: ["Instantly", "Apollo", "LinkedIn", "Signal data"],
   },
 ];
 
-const builds = [
+const minis = [
   {
-    title: "// video in code",
-    body: "Product videos built in code with Remotion and Claude Code, so updating a video means editing a file, not booking a reshoot.",
+    title: "Product videos written in code",
+    body: "Built with Remotion and Claude Code, so updating a video means editing a file, not booking a reshoot.",
   },
   {
-    title: "// gtm jobs agent",
-    body: "Ran nRev's jobs agent every week for 27 weeks to source GTM roles for the /gtm-jobs page and a weekly job-board post: 283 listings, 15.4K impressions.",
+    title: "A jobs agent that posts every week",
+    body: "Ran nRev's jobs agent for 27 weeks to source GTM roles: 283 listings and a weekly job-board post with 15.4K impressions.",
   },
   {
-    title: "// content qa on autopilot",
-    body: "Brand guidelines, a QA rubric and Claude skills that check pages and posts against them before they go live.",
+    title: "Brand QA that runs before I do",
+    body: "Brand guidelines, a QA rubric and Claude skills that check pages and posts before they go live.",
   },
   {
-    title: "// free tools + signals hub",
+    title: "Free tools that pull search traffic",
     body: "Co-built with the founders: 18 free GTM tools that drew 257 search clicks in about two months, plus a 48-signal library.",
   },
 ];
@@ -177,311 +315,298 @@ const builds = [
 const calls = [
   {
     title: "Shut down paid search at MarkovML",
-    body: "Ran a $10K a month Google Ads program for six months to test CAC payback. The data showed the target persona wasn't searching for the product as positioned, so I stopped it. The company changed its positioning soon after.",
+    body: "Ran a $10K a month Google Ads program for six months to test CAC payback. The data showed our persona wasn't searching for the product as positioned, so I stopped it. The company changed its positioning soon after.",
   },
   {
-    title: "Talked a CEO out of a product launch",
-    body: "Hired at Samespace to market a new product. Researched the category, found it crowded and weak, and helped the CEO decide not to pursue it. Moved onto the core CX product instead.",
+    title: "Helped a CEO walk away from a launch",
+    body: "Hired at Samespace to market a new product, I researched the category, found it crowded and weak, and helped the CEO decide not to pursue it.",
   },
   {
-    title: "Judged events by signups, not seats",
-    body: "Big open webinars filled up and barely moved signups. Hands-on workshops converted on the day. The KPI moved from registrations to ICP signups.",
+    title: "Moved the KPI from seats to signups",
+    body: "Open webinars filled up and barely moved signups. Hands-on workshops converted on the day. Marketing's single KPI became ICP signups.",
   },
   {
     title: "Cut losing segments before they cost us",
-    body: "Stopped the Staffing and Tech Services outbound angles after the pilot instead of scaling them, protecting sender reputation for the angles that worked.",
+    body: "Stopped the Staffing and Tech Services outbound angles after the pilot, which kept sender reputation intact for the angles that worked.",
   },
 ];
 
-const roles = [
+const career = [
   {
-    company: "nRev",
-    role: "Founding Growth Marketer · Jul 2025 – Present",
-    meta: "First marketing hire · team of 6",
-    body: "First marketing hire at an AI-native GTM automation platform, half of a two-person GTM team with the CEO. Fed the pipeline behind 324 booked meetings and 30 paying customers with no paid ads, through SEO and AEO, events and signal-based outbound. Owned the 75-page site, the company's LinkedIn presence and the measurement behind every channel, and led six people across growth ops, GTM engineering, design and web.",
-    stats: [
-      { b: "1,200+", s: "signups, from under 10 a month to about 100" },
-      { b: "+108%", s: "company LinkedIn followers, 2nd of 10 GTM peers" },
-      { b: "150+", s: "member GTM operators community seeded" },
-    ],
+    years: "2025–Now",
+    co: "nRev",
+    role: "Founding Growth Marketer",
+    win: "First marketing hire. Led a team of six. Grew company LinkedIn followers 108%, second of ten GTM peers.",
   },
   {
-    company: "MarkovML",
-    role: "Growth Marketing Lead (promoted from Content Marketer) · Aug 2023 – Jul 2025",
-    meta: "Relaunch, SEO moat, paid test",
-    body: "Led the website relaunch (IA, UX, SEO, copy and positioning) that repositioned the platform for GTM teams. Built a 100+ page SEO moat ranking on page 1 for \"AI workflow builder\", and ran the company's paid search test.",
-    stats: [
-      { b: "30%", s: "organic pipeline growth in 90 days" },
-      { b: "25%", s: "conversion-rate lift after the relaunch" },
-      { b: "+40%", s: "non-branded traffic" },
-    ],
+    years: "2023–25",
+    co: "MarkovML",
+    role: "Growth Marketing Lead, promoted from Content Marketer",
+    win: "Relaunched the website for 30% organic pipeline growth in 90 days and a 25% conversion lift.",
   },
   {
-    company: "Firework",
-    role: "Content Marketing Analyst, Global (Contract) · Jul 2022 – Jun 2023",
-    meta: "SEO from zero, US team",
-    body: "Built the SEO function from zero for a San Mateo video-commerce company, working async with the US team and directing an SEO agency on execution.",
-    stats: [
-      { b: "+160%", s: "branded traffic" },
-      { b: "+65%", s: "non-branded traffic" },
-      { b: "-30%", s: "bounce rate" },
-    ],
+    years: "2022–23",
+    co: "Firework",
+    role: "Content Marketing Analyst, Global",
+    win: "Built SEO from zero for a US team: branded traffic up 160%, non-branded up 65%.",
   },
   {
-    company: "Acquire.io",
-    role: "Digital Marketing Executive, promoted to Community Manager · Jun 2019 – Aug 2021",
-    meta: "SEO and community",
-    body: "Built a CX content site and a community from scratch, and held a top-3 US Google ranking for \"co-browsing\", a core product keyword.",
-    stats: [
-      { b: "250+", s: "top-10 keywords in 3 months" },
-      { b: "1,000+", s: "Twitter followers in 6 months" },
-      { b: "500", s: "member LinkedIn group" },
-    ],
+    years: "2019–21",
+    co: "Acquire.io",
+    role: "Digital Marketing Executive, promoted to Community Manager",
+    win: "250+ top-10 keywords in 3 months and a top-3 US ranking for \"co-browsing\".",
+  },
+  {
+    years: "2017–22",
+    co: "Earlier",
+    role: "Samespace, Decathlon, BitWise",
+    win: "Plus SEO and GTM consulting for Baroque Group in Dubai, Cogneesol and La Forêt.",
   },
 ];
 
 const toolkit = [
-  { group: "build with", items: ["Claude", "Claude Code", "MCP servers", "Remotion", "Firecrawl", "Next.js"] },
-  { group: "run demand", items: ["Instantly", "Apollo", "HubSpot", "Luma", "Brevo", "Webflow"] },
-  { group: "measure", items: ["GA4", "Search Console", "Bing Webmaster", "Looker Studio", "Mixpanel", "Ahrefs"] },
+  { group: "Build with", items: ["Claude", "Claude Code", "MCP servers", "Remotion", "Firecrawl", "Next.js"] },
+  { group: "Run demand", items: ["Instantly", "Apollo", "HubSpot", "Luma", "Brevo", "Webflow"] },
+  { group: "Measure", items: ["GA4", "Search Console", "Bing Webmaster", "Looker Studio", "Mixpanel", "Ahrefs"] },
 ];
 
 const writing = [
-  { title: "HackerNoon · author profile", url: "https://hackernoon.com/about/jay-purohit", tag: "bylined" },
+  { title: "SEO audit for PriceLabs", tag: "Work sample, PDF", url: "/priceLabs-seo-audit-assignment.pdf" },
+  { title: "HackerNoon", tag: "Author page", url: "https://hackernoon.com/about/jay-purohit" },
+  { title: "Make.com: Automated customer service", tag: "Bylined, 2020", url: "https://www.make.com/en/blog/automated-customer-service" },
+  { title: "CustomerThink", tag: "Author page", url: "https://customerthink.com/author/jaypurohit/" },
+  { title: "WebEngage", tag: "Author page", url: "https://webengage.com/author/jaypurohit/" },
   {
-    title: "Make.com · Automated Customer Service",
-    url: "https://www.make.com/en/blog/automated-customer-service",
-    tag: "bylined, 2020",
-  },
-  { title: "CustomerThink · author profile", url: "https://customerthink.com/author/jaypurohit/", tag: "bylined" },
-  { title: "WebEngage · author profile", url: "https://webengage.com/author/jaypurohit/", tag: "bylined" },
-  {
-    title: "Determ · 5 Types of Customer Service Software",
+    title: "Determ: 5 types of customer service software",
+    tag: "Bylined, 2021",
     url: "https://determ.com/blog/5-types-of-customer-service-software-that-enhance-support-quality/",
-    tag: "bylined, 2021",
   },
   {
-    title: "Capturly · Session Replay for Customer Satisfaction",
+    title: "Capturly: Session replay and customer satisfaction",
+    tag: "Ghostwritten",
     url: "https://capturly.com/blog/5-ideas-for-using-session-replay-to-ensure-customer-satisfaction/",
-    tag: "ghostwritten",
   },
-  {
-    title: "Digital Insurance whitepaper",
-    url: "/writing-sample-digital-insurance-whitepaper.pdf",
-    tag: "ghostwritten, PDF",
-  },
-  { title: "Hyperautomation: A Practical Guide", url: "/writing-sample-hyperautomation-guide.pdf", tag: "ghostwritten, PDF" },
+  { title: "Digital insurance whitepaper", tag: "Ghostwritten, PDF", url: "/writing-sample-digital-insurance-whitepaper.pdf" },
+  { title: "Hyperautomation: a practical guide", tag: "Ghostwritten, PDF", url: "/writing-sample-hyperautomation-guide.pdf" },
 ];
 
-const LINKEDIN = "https://www.linkedin.com/in/jaypurohit-growth/";
-const EMAIL = "mailto:jaypurohit9294@gmail.com";
+function PrimaryButton({ className = "btn btn-primary" }) {
+  return (
+    <a
+      className={className}
+      href={PRIMARY.href}
+      {...(PRIMARY.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+    >
+      {PRIMARY.label}
+    </a>
+  );
+}
 
 export default function Home() {
   return (
     <>
       <nav className="nav">
-        <div className="nav-inner">
-          <a href="#top" className="nav-mark">
-            <strong>Jay Purohit</strong> / gtm + demand
+        <div className="nav-inner wrap-wide">
+          <a href="#top" className="wordmark">
+            Jay Purohit<span>.</span>
           </a>
           <ul className="nav-links">
-            <li><a href="#systems">Systems</a></li>
-            <li><a href="#calls">Calls</a></li>
-            <li><a href="#work">Work</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li className="nav-hide"><a href="#work">Work</a></li>
+            <li className="nav-hide"><a href="#calls">Calls</a></li>
+            <li className="nav-hide"><a href="#career">Career</a></li>
+            <li>
+              <PrimaryButton className="btn btn-primary btn-sm" />
+            </li>
           </ul>
         </div>
       </nav>
 
       <main id="top">
-        <section className="hero wrap">
-          <p className="eyebrow">GTM ENGINEERING · DEMAND GENERATION · B2B SAAS</p>
+        <header className="hero wrap-wide">
+          <p className="eyebrow">GTM engineering · Demand generation · B2B SaaS</p>
           <h1>
             I build the <em>GTM engine</em> that fills your pipeline.
           </h1>
           <p className="hero-sub">
-            9+ years building B2B SaaS demand from zero, three times over. At nRev, I fed the pipeline
-            behind 324 booked meetings and 30 paying customers with no paid ads, and built the systems
-            behind it myself with Claude and Claude Code.
+            Last build: 324 booked meetings and 30 paying customers at nRev, with no paid ads.
           </p>
           <div className="hero-actions">
-            <a className="btn btn-primary" href={EMAIL}>
-              Email me
-            </a>
+            <PrimaryButton />
             <a className="btn btn-ghost" href="/resume.pdf" target="_blank" rel="noopener noreferrer">
-              Download resume ↓
+              Download resume
             </a>
             <a className="btn btn-ghost" href={LINKEDIN} target="_blank" rel="noopener noreferrer">
               LinkedIn ↗
             </a>
           </div>
-        </section>
+          <p className="hero-meta">9+ years in B2B SaaS · Three 0-to-1 builds · Pune, open to remote</p>
+        </header>
 
-        <section className="proof wrap" aria-label="Headline results">
+        <section className="proof wrap-wide" aria-label="Headline results">
           <div className="proof-grid">
-            {proofStats.map((s) => (
+            {proof.map((s) => (
               <div key={s.label}>
                 <div className="stat-num">
                   {s.num}
                   <span className="unit">{s.unit}</span>
                 </div>
-                <div className="stat-label">{s.label}</div>
+                <p className="stat-label">{s.label}</p>
               </div>
             ))}
           </div>
-          <p className="proof-note">
-            Company results during my tenure. Every number traces to Search Console, GA4, Bing Webmaster,
-            Supabase or the CRM.
-          </p>
         </section>
 
-        <section id="systems" className="section wrap">
-          <div className="section-head">
-            <span className="section-tag">// systems i built</span>
-            <h2>The engines behind the numbers</h2>
+        <section className="wrap-wide" aria-label="Signup growth">
+          <div className="chart-card">
+            <div className="chart-head">
+              <p className="kicker">Monthly signups at nRev, during my tenure</p>
+              <h2>From under 10 signups a month to about 100, without a single paid ad.</h2>
+            </div>
+            <SignupChart />
+            <SignupChart compact />
+            <p className="chart-source">
+              Source: nRev Supabase auth export, external signups only (internal and test accounts removed),
+              Jul 2025 to Sep 2026. Company results; I led growth.
+            </p>
+            <div className="customers">
+              <p>Accounts that came through the event program I ran, then became paying customers:</p>
+              <ul className="customer-names">
+                <li>PriceLabs</li>
+                <li>Spendflo</li>
+                <li>Zuddl</li>
+                <li>Mysa</li>
+              </ul>
+            </div>
           </div>
-          {systems.map((s) => (
-            <article className="case system" key={s.id} id={`system-${s.id}`}>
-              <div className="case-head">
-                <h3>{s.title}</h3>
-                <span className="case-meta">{s.tag}</span>
-              </div>
-              <p className="system-outcome">{s.outcome}</p>
+        </section>
+
+        <section id="work" className="section wrap-wide">
+          <div className="section-head">
+            <p className="kicker">Systems I built</p>
+            <h2>Three engines behind the numbers.</h2>
+            <p>Each one starts with a problem and ends with a number.</p>
+          </div>
+
+          {cases.map((c) => (
+            <article className="case" key={c.id} id={`case-${c.id}`}>
+              <p className="case-kicker">{c.kicker}</p>
+              <h3>{c.title}</h3>
+              <p className="case-problem">{c.problem}</p>
               <div className="flow">
-                <FlowDiagram id={s.id} {...s.flow} />
+                <FlowDiagram id={c.id} {...c.flow} />
+                <FlowStack {...c.flow} />
               </div>
-              {s.body.map((p) => (
-                <p key={p.slice(0, 24)}>{p}</p>
-              ))}
-              <div className="build-tags">
-                {s.tags.map((t) => (
-                  <span className="build-tag" key={t}>{t}</span>
-                ))}
+              <div className="case-body">
+                <div className="case-built">
+                  <p className="case-label">What I built</p>
+                  {c.built.map((p) => (
+                    <p key={p.slice(0, 30)}>{p}</p>
+                  ))}
+                </div>
+                <div>
+                  <p className="case-label">What it did</p>
+                  <ul className="results">
+                    {c.results.map((r) => (
+                      <li key={r.b}>
+                        <b>{r.b}</b>
+                        <span>{r.s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-              <div className="case-stats">
-                {s.stats.map((st) => (
-                  <div className="case-stat" key={st.b}>
-                    <b>{st.b}</b>
-                    <span>{st.s}</span>
-                  </div>
-                ))}
+              <div className="lesson">
+                <p className="case-label">What I learned</p>
+                <p>{c.lesson}</p>
               </div>
-              {s.link && (
-                <p className="case-link">
-                  <a href={s.link.url} target="_blank" rel="noopener noreferrer">
-                    {s.link.label} ↗
+              <div className="case-foot">
+                <ul className="tags">
+                  {c.tags.map((t) => (
+                    <li className="tag" key={t}>{t}</li>
+                  ))}
+                </ul>
+                {c.link && (
+                  <a className="text-link" href={c.link.url} target="_blank" rel="noopener noreferrer">
+                    {c.link.label} ↗
                   </a>
-                </p>
-              )}
+                )}
+              </div>
             </article>
           ))}
 
-          <div className="stack-grid builds-grid">
-            {builds.map((b) => (
-              <div className="stack-card" key={b.title}>
-                <h4>{b.title}</h4>
-                <p>{b.body}</p>
+          <h3 className="mini-head">Smaller builds</h3>
+          <div className="mini-grid">
+            {minis.map((m) => (
+              <div className="mini" key={m.title}>
+                <h4>{m.title}</h4>
+                <p>{m.body}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="cta-band wrap" aria-label="Get in touch">
-          <div className="cta-inner">
-            <p>Want this engine built for your team?</p>
-            <a className="btn btn-primary" href={EMAIL}>
-              Let&rsquo;s talk
-            </a>
-          </div>
-        </section>
-
-        <section id="calls" className="section wrap">
+        <section id="calls" className="section wrap-wide">
           <div className="section-head">
-            <span className="section-tag">// calls i made</span>
-            <h2>Judgment, with the data that drove it</h2>
+            <p className="kicker">Calls I made</p>
+            <h2>Good growth is mostly knowing what to stop.</h2>
           </div>
-          <div className="calls-grid">
+          <div className="calls">
             {calls.map((c) => (
-              <div className="call-card" key={c.title}>
-                <h4>{c.title}</h4>
+              <div className="call" key={c.title}>
+                <h3>{c.title}</h3>
                 <p>{c.body}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section id="work" className="section wrap">
+        <section id="career" className="section wrap-wide">
           <div className="section-head">
-            <span className="section-tag">// work</span>
-            <h2>Three 0-to-1 builds, and where they started</h2>
+            <p className="kicker">Career</p>
+            <h2>Three 0-to-1 builds, nine years in.</h2>
           </div>
-          {roles.map((c) => (
-            <article className="case" key={c.company}>
-              <div className="case-head">
-                <h3>{c.company}</h3>
-                <span className="case-meta">{c.meta}</span>
-              </div>
-              <p className="case-role">{c.role}</p>
-              <p>{c.body}</p>
-              <div className="case-stats">
-                {c.stats.map((st) => (
-                  <div className="case-stat" key={st.b}>
-                    <b>{st.b}</b>
-                    <span>{st.s}</span>
-                  </div>
-                ))}
-              </div>
-            </article>
-          ))}
-          <p className="earlier">
-            <span>Earlier</span> Samespace (Senior Marketing Associate) · Decathlon Sports India (events and
-            community) · BitWise Ventures (first role: SEO and outbound) · Independent SEO and GTM consulting
-            for Baroque Group (Dubai), Cogneesol and La Forêt
-          </p>
+          <ul className="timeline">
+            {career.map((r) => (
+              <li key={r.co}>
+                <span className="tl-years">{r.years}</span>
+                <div>
+                  <span className="tl-co">{r.co}</span>
+                  <span className="tl-role">{r.role}</span>
+                </div>
+                <p className="tl-win">{r.win}</p>
+              </li>
+            ))}
+          </ul>
         </section>
 
-        <section id="toolkit" className="section wrap">
+        <section id="toolkit" className="section wrap-wide">
           <div className="section-head">
-            <span className="section-tag">// toolkit</span>
-            <h2>What I work in every day</h2>
+            <p className="kicker">Toolkit</p>
+            <h2>What I work in every day.</h2>
           </div>
-          <div className="tool-groups">
+          <div className="toolkit">
             {toolkit.map((g) => (
-              <div className="tool-group" key={g.group}>
-                <h4>// {g.group}</h4>
-                <div className="build-tags">
+              <div key={g.group}>
+                <h3>{g.group}</h3>
+                <ul className="tags">
                   {g.items.map((t) => (
-                    <span className="build-tag" key={t}>{t}</span>
+                    <li className="tag" key={t}>{t}</li>
                   ))}
-                </div>
+                </ul>
               </div>
             ))}
           </div>
-          <p className="tool-note">MCA-trained. I build with Claude and Claude Code, so automation is something I ship, not a ticket I file.</p>
+          <p className="toolkit-note">
+            MCA-trained. I build with Claude and Claude Code, so automation is something I ship myself.
+          </p>
         </section>
 
-        <section id="samples" className="section wrap">
+        <section id="writing" className="section wrap-wide">
           <div className="section-head">
-            <span className="section-tag">// samples + writing</span>
-            <h2>How I work a problem on paper</h2>
+            <p className="kicker">Samples and writing</p>
+            <h2>How I think on paper.</h2>
           </div>
-          <article className="case">
-            <div className="case-head">
-              <h3>SEO audit: PriceLabs</h3>
-              <span className="case-meta">Take-home, SEO Manager interview</span>
-            </div>
-            <p>
-              Full on-page, technical and off-page audit of PriceLabs&rsquo; homepage: Core Web Vitals issues,
-              title and meta rewrites, internal linking gaps, and a prioritized keyword table with volume,
-              difficulty and current position.
-            </p>
-            <p className="case-link">
-              <a href="/priceLabs-seo-audit-assignment.pdf" target="_blank" rel="noopener noreferrer">
-                View PDF ↓
-              </a>
-            </p>
-          </article>
-          <ul className="writing-list">
+          <ul className="link-list">
             {writing.map((w) => (
               <li key={w.url}>
                 <a href={w.url} target="_blank" rel="noopener noreferrer">
@@ -493,24 +618,26 @@ export default function Home() {
           </ul>
         </section>
 
-        <section id="contact" className="footer wrap">
-          <h2>Let&rsquo;s build your pipeline engine.</h2>
-          <p>
-            Open to senior growth, demand generation and GTM engineering roles. Based in Pune, open to
-            remote and relocation.
-          </p>
-          <div className="footer-actions">
-            <a className="btn btn-primary" href={EMAIL}>
-              jaypurohit9294@gmail.com
-            </a>
-            <a className="btn btn-ghost" href={LINKEDIN} target="_blank" rel="noopener noreferrer">
-              LinkedIn ↗
-            </a>
-            <a className="btn btn-ghost" href="tel:+917990264350">
-              +91 7990264350
-            </a>
+        <section id="contact" className="contact wrap-wide">
+          <div className="contact-card">
+            <p className="kicker">Next step</p>
+            <h2>Let&rsquo;s build your pipeline engine.</h2>
+            <p>
+              Open to senior growth, demand generation and GTM engineering roles. Based in Pune, open to remote
+              and relocation.
+            </p>
+            <div className="contact-actions">
+              <PrimaryButton />
+              <a className="btn btn-ghost" href={LINKEDIN} target="_blank" rel="noopener noreferrer">
+                LinkedIn ↗
+              </a>
+            </div>
+            <div className="contact-lines">
+              <span>{EMAIL}</span>
+              <span>+91 79902 64350</span>
+            </div>
           </div>
-          <p className="footer-meta">Pune, India · Updated Oct 2026</p>
+          <p className="footer-meta">Jay Purohit · Pune, India · Updated October 2026</p>
         </section>
       </main>
     </>
