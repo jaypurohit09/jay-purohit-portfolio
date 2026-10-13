@@ -23,14 +23,15 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata = {
-  title: "Jay Purohit · Growth marketer who builds the systems he markets with",
+  title: "Jay Purohit · GTM engineering and demand generation",
   description:
-    "Zero-to-one growth operator, 9+ years in B2B SaaS. AI-augmented GTM systems, AEO, CRO, and lifecycle marketing with real numbers attached.",
+    "Jay Purohit builds the GTM engine that fills the pipeline: 9+ years of B2B SaaS demand from zero, SEO and AEO, event-led and signal-based outbound, built with Claude and Claude Code.",
   openGraph: {
-    title: "Jay Purohit · Growth Marketing Portfolio",
+    title: "Jay Purohit · I build the GTM engine that fills your pipeline",
     description:
-      "Zero-to-one growth operator, 9+ years in B2B SaaS. AI-augmented GTM systems, AEO, CRO, and lifecycle marketing with real numbers attached.",
+      "324 booked meetings and 30 paying customers fed with no paid ads, 33,525 AI-answer citations, and the systems behind them.",
     type: "website",
+    url: "https://jay-purohit-portfolio.vercel.app",
   },
 };
 
