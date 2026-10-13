@@ -235,7 +235,7 @@ const cases = [
     lesson:
       "Ranking isn't the same as being cited. AI builds its answer from whoever is easiest to quote, so I wrote pages to be quoted.",
     figure: {
-      src: "/aeo-anatomy-card.jpg",
+      src: "/aeo-anatomy-card.png",
       alt: "Graphic titled The anatomy of a 13,650-citation AEO page, listing five steps: pick a best-of category, answer in the first 200 words, put your product first with specifics, back rankings with numbers, end with a real FAQ.",
       caption: "From my LinkedIn: the anatomy of nRev's most-cited page, and the five rules behind it.",
     },
@@ -445,7 +445,7 @@ export default function Home() {
             </a>
           </div>
           <div className="hero-meta">
-            <img src="/jay-purohit.jpg" alt="Jay Purohit" width="44" height="44" className="avatar" />
+            <img src="/jay-profile.jpeg" alt="Jay Purohit" width="44" height="44" className="avatar" />
             <span>9+ years in B2B SaaS · Three 0-to-1 builds · Pune, open to remote</span>
           </div>
         </header>
@@ -636,7 +636,7 @@ export default function Home() {
 
         <section id="contact" className="contact wrap-wide">
           <div className="contact-card">
-            <img src="/jay-purohit.jpg" alt="Jay Purohit" width="88" height="88" className="avatar avatar-lg" />
+            <img src="/jay-profile.jpeg" alt="Jay Purohit" width="88" height="88" className="avatar avatar-lg" />
             <p className="kicker">Next step</p>
             <h2>Let&rsquo;s build your pipeline engine.</h2>
             <p>
