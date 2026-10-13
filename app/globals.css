@@ -233,9 +233,27 @@ button:focus-visible {
 }
 
 .hero-meta {
-  margin-top: 22px;
+  margin-top: 26px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-size: 14.5px;
   font-weight: 500;
+}
+
+.avatar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--violet);
+}
+
+.avatar-lg {
+  width: 88px;
+  height: 88px;
+  margin-bottom: 22px;
 }
 
 /* Proof strip */
@@ -552,6 +570,38 @@ button:focus-visible {
   font-size: 15px;
   font-weight: 500;
   line-height: 1.45;
+}
+
+.lesson-row {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 860px) {
+  .lesson-row {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 40px;
+  }
+}
+
+.case-figure {
+  margin-top: 28px;
+  max-width: 360px;
+}
+
+.case-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.case-figure figcaption {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .lesson {

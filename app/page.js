@@ -1,6 +1,6 @@
 // Booking link: set this to your Cal.com event URL (e.g. "https://cal.com/jaypurohit/intro").
 // While it is empty, the primary button falls back to email.
-const BOOKING_URL = "";
+const BOOKING_URL = "https://cal.com/jaypurohit-growth/intro";
 
 const EMAIL = "jaypurohit9294@gmail.com";
 const MAILTO = `mailto:${EMAIL}?subject=Hello%20Jay`;
@@ -234,6 +234,11 @@ const cases = [
     ],
     lesson:
       "Ranking isn't the same as being cited. AI builds its answer from whoever is easiest to quote, so I wrote pages to be quoted.",
+    figure: {
+      src: "/aeo-anatomy-card.jpg",
+      alt: "Graphic titled The anatomy of a 13,650-citation AEO page, listing five steps: pick a best-of category, answer in the first 200 words, put your product first with specifics, back rankings with numbers, end with a real FAQ.",
+      caption: "From my LinkedIn: the anatomy of nRev's most-cited page, and the five rules behind it.",
+    },
     tags: ["Python MCP", "Claude", "Search Console", "Webflow", "Bing Webmaster"],
     link: { label: "Open the Elite dashboard", url: "https://nrev-elite-dashboard.vercel.app" },
   },
@@ -439,7 +444,10 @@ export default function Home() {
               LinkedIn ↗
             </a>
           </div>
-          <p className="hero-meta">9+ years in B2B SaaS · Three 0-to-1 builds · Pune, open to remote</p>
+          <div className="hero-meta">
+            <img src="/jay-purohit.jpg" alt="Jay Purohit" width="44" height="44" className="avatar" />
+            <span>9+ years in B2B SaaS · Three 0-to-1 builds · Pune, open to remote</span>
+          </div>
         </header>
 
         <section className="proof wrap-wide" aria-label="Headline results">
@@ -460,7 +468,7 @@ export default function Home() {
           <div className="chart-card">
             <div className="chart-head">
               <p className="kicker">Monthly signups at nRev, during my tenure</p>
-              <h2>From under 10 signups a month to about 100, without a single paid ad.</h2>
+              <h2>1,200+ signups, from under 10 a month to about 100. No paid ads.</h2>
             </div>
             <SignupChart />
             <SignupChart compact />
@@ -515,9 +523,17 @@ export default function Home() {
                   </ul>
                 </div>
               </div>
-              <div className="lesson">
-                <p className="case-label">What I learned</p>
-                <p>{c.lesson}</p>
+              <div className={c.figure ? "lesson-row" : undefined}>
+                <div className="lesson">
+                  <p className="case-label">What I learned</p>
+                  <p>{c.lesson}</p>
+                </div>
+                {c.figure && (
+                  <figure className="case-figure">
+                    <img src={c.figure.src} alt={c.figure.alt} width="720" height="900" loading="lazy" />
+                    <figcaption>{c.figure.caption}</figcaption>
+                  </figure>
+                )}
               </div>
               <div className="case-foot">
                 <ul className="tags">
@@ -620,6 +636,7 @@ export default function Home() {
 
         <section id="contact" className="contact wrap-wide">
           <div className="contact-card">
+            <img src="/jay-purohit.jpg" alt="Jay Purohit" width="88" height="88" className="avatar avatar-lg" />
             <p className="kicker">Next step</p>
             <h2>Let&rsquo;s build your pipeline engine.</h2>
             <p>
