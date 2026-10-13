@@ -97,6 +97,7 @@ button:focus-visible {
 }
 
 .nav-mark {
+  text-decoration: none;
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--text-dim);
@@ -126,14 +127,20 @@ button:focus-visible {
   color: var(--accent);
 }
 
-.nav-links li:first-child {
-  display: none;
+.nav-links {
+  gap: 16px;
 }
 
 @media (min-width: 640px) {
-  .nav-links li:first-child {
-    display: inline;
+  .nav-links {
+    gap: 24px;
   }
+}
+
+@media (max-width: 420px) {
+  .nav-mark span,
+  .nav-mark { font-size: 12px; }
+  .nav-links { gap: 12px; font-size: 12px; }
 }
 
 /* Hero */
@@ -164,10 +171,10 @@ button:focus-visible {
 .hero h1 {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(32px, 5.5vw, 52px);
-  line-height: 1.12;
-  letter-spacing: -0.01em;
-  max-width: 15ch;
+  font-size: clamp(34px, 6vw, 56px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  max-width: 17ch;
 }
 
 .hero h1 em {
@@ -372,6 +379,185 @@ button:focus-visible {
 .case-stat span {
   font-size: 12.5px;
   color: var(--text-faint);
+}
+
+
+/* Proof note */
+.proof-note {
+  margin-top: 26px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* Systems */
+.system h3 {
+  max-width: 30ch;
+}
+
+.system-outcome {
+  font-family: var(--font-display);
+  font-size: clamp(17px, 2.2vw, 20px) !important;
+  line-height: 1.45 !important;
+  color: var(--text) !important;
+  margin: 12px 0 8px !important;
+  max-width: 52ch;
+}
+
+.flow {
+  margin: 18px -8px 22px;
+  overflow-x: auto;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: #0d1116;
+  padding: 10px 8px;
+}
+
+.flow-svg {
+  display: block;
+  width: 100%;
+  min-width: 600px;
+  height: auto;
+}
+
+.flow-label { font-family: var(--font-mono); font-size: 13px; fill: var(--text-dim); }
+.flow-label-out { fill: var(--text); font-size: 13.5px; }
+.flow-sub-out { font-family: var(--font-mono); font-size: 11.5px; fill: var(--text-faint); }
+.flow-hub { font-family: var(--font-display); font-size: 15px; font-weight: 600; fill: var(--text); }
+.flow-hub-sub { font-family: var(--font-mono); font-size: 10.5px; fill: var(--accent); }
+
+.case-link {
+  margin: 18px 0 0 !important;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+}
+
+.case-link a {
+  color: var(--accent-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-2-soft);
+}
+
+.case-link a:hover {
+  border-bottom-color: var(--accent-2);
+}
+
+.builds-grid {
+  margin-top: 8px;
+}
+
+/* Tags */
+.build-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 4px;
+}
+
+.build-tag {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: var(--surface-2);
+}
+
+/* CTA band */
+.cta-band {
+  padding-top: 8px;
+}
+
+.cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  border: 1px solid var(--accent-soft);
+  background: linear-gradient(90deg, #1a150b 0%, var(--surface) 70%);
+  border-radius: 10px;
+  padding: 22px 26px;
+}
+
+.cta-inner p {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+}
+
+/* Calls */
+.calls-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .calls-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.call-card {
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+  border-radius: 10px;
+  padding: 22px;
+  background: var(--surface);
+}
+
+.call-card h4 {
+  font-family: var(--font-display);
+  font-size: 16.5px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.call-card p {
+  font-size: 14.5px;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+/* Earlier roles */
+.earlier {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-top: 6px;
+}
+
+.earlier span {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent-2);
+  margin-right: 8px;
+}
+
+/* Toolkit */
+.tool-groups {
+  display: grid;
+  gap: 22px;
+}
+
+.tool-group h4 {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.tool-note {
+  margin-top: 26px;
+  font-size: 14.5px;
+  color: var(--text-dim);
+}
+
+.writing-list {
+  margin-top: 28px;
 }
 
 /* How I work */
